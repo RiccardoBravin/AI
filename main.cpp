@@ -56,10 +56,11 @@ int main(int argc, char const *argv[])
     vector<double> input {1,0};
     vector<double> answers {1};
     
-    //cout << test.feedForward(input) << endl;
+    cout << test.feedForwardAll(input)[0] << endl;
+    cout << test.feedForwardAll(input)[1] << endl;
     
 
-    test.train(input, answers);
+    //test.train(input, answers);
     //cout << test;
 
     return 0;

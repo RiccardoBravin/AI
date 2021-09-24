@@ -34,7 +34,8 @@ class NeuralNetwork{
             }
         }
 
-        vector<double> feedForward(vector<double>& input);
+        vector<double> feedForward(vector<double>& input); //returns a vector
+        vector<Matrix> feedForwardAll(vector<double>& input);
         
         void train(vector<double>& inputs, vector<double>& results);
        
@@ -60,12 +61,28 @@ vector<double> NeuralNetwork::feedForward(vector<double>& input){
     return output;
 }
 
+vector<Matrix> NeuralNetwork::feedForwardAll(vector<double>& input){
+    if (input.size() != layers[0]) throw new InvalidArgumentException;
+
+    vector<Matrix> values;
+    Matrix aux (input);
+    values.push_back(weights[0].dot(aux));
+    for(int i = 0; i < layers.size()-2; i){
+        values[i].add(biases[i]);
+        values[i].map(sigmoid);
+        i++;
+        values.push_back(weights[i].dot(values[i-1]));
+    }
+
+    return values;
+}
+
 void  NeuralNetwork::train(vector<double>& inputs, vector<double>& results){
     
-    Matrix outputs = feedForward(inputs);
+    vector<Matrix> outputs = feedForwardAll(inputs);
     Matrix errors(results); //prepara 
     
-    errors.subtract(outputs);
+    errors.subtract(outputs[0]);
     
     Matrix transposed;
     
@@ -78,7 +95,7 @@ void  NeuralNetwork::train(vector<double>& inputs, vector<double>& results){
         transposed.transpose();
         //cout << "trasposta" << endl << transposed << endl;
         errors = transposed.dot(errors);
-        //cout << "fatto prodotto" << endl << errors << endl;
+        //cout << "prodotto" << endl << errors << endl;
     }
 
     
