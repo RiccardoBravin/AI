@@ -11,7 +11,7 @@ ostream& operator<<(ostream& str, vector<double> v);
 
 int main(int argc, char const *argv[])
 {
-    srand(time(0));
+    srand(time(NULL));
 
     /*Matrix test (2,5);
     
@@ -56,12 +56,12 @@ int main(int argc, char const *argv[])
     vector<double> input {1,0};
     vector<double> answers {1};
     
-    cout << test.feedForwardAll(input)[0] << endl;
-    cout << test.feedForwardAll(input)[1] << endl;
+    //cout << test.feedForwardAll(input)[0] << endl;
+    //cout << test.feedForwardAll(input)[1] << endl;
     
-
-    //test.train(input, answers);
-    //cout << test;
+    
+    test.train(input, answers);
+    cout << "pesi del network dopo il training"<<test;
 
     return 0;
 }

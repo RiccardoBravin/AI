@@ -17,11 +17,16 @@ double sigmoid(double x){
     return 1/(1+exp(x));
 }
 
+double grad(double x){
+    return x * (1 - x);
+}
+
 class NeuralNetwork{
     private:
         vector<int> layers;
         vector<Matrix> weights;
         vector<Matrix> biases;
+        double learningRate {0.1}; //valore da cambiare in base alla velocità di 
 
     public:
         NeuralNetwork(vector<int> _layers){
@@ -61,7 +66,7 @@ vector<double> NeuralNetwork::feedForward(vector<double>& input){
     return output;
 }
 
-vector<Matrix> NeuralNetwork::feedForwardAll(vector<double>& input){
+/*vector<Matrix> NeuralNetwork::feedForwardAll(vector<double>& input){
     if (input.size() != layers[0]) throw new InvalidArgumentException;
 
     vector<Matrix> values;
@@ -75,27 +80,64 @@ vector<Matrix> NeuralNetwork::feedForwardAll(vector<double>& input){
     }
 
     return values;
+}*/
+
+vector<Matrix> NeuralNetwork::feedForwardAll(vector<double>& input){
+    if (input.size() != layers[0]) throw new InvalidArgumentException;
+
+    vector<Matrix> values;
+    Matrix aux (input);
+
+    for(int i = 0; i < layers.size()-1; i++){
+        aux = weights[i].dot(aux);
+        aux.add(biases[i]);
+        aux.map(sigmoid);
+        values.push_back(aux);
+    }
+
+    return values;
+
 }
 
 void  NeuralNetwork::train(vector<double>& inputs, vector<double>& results){
     
     vector<Matrix> outputs = feedForwardAll(inputs);
-    Matrix errors(results); //prepara 
+    Matrix errors(results); //prepara i risultati in forma matriciale
     
-    errors.subtract(outputs[0]);
+    errors.subtract(outputs[layers.size()-2]); //calcola la differenza con i risultati attesi
     
     Matrix transposed;
     
 
     for(int i = layers.size()-2; i > 0; i--){
         
-        //cout << "errore:" << endl << errors << endl;
+        /*cout << "errore:" << endl << errors << endl;
         transposed = Matrix(weights[i]);
-        //cout << "presi i pesi" << endl << transposed << endl;
+        cout << "presi i pesi" << endl << transposed << endl;
         transposed.transpose();
-        //cout << "trasposta" << endl << transposed << endl;
+        cout << "trasposta" << endl << transposed << endl;
         errors = transposed.dot(errors);
-        //cout << "prodotto" << endl << errors << endl;
+        cout << "prodotto" << endl << errors << endl;*/
+
+        cout << "gradient:\n";
+        Matrix gradient = outputs[i];
+        gradient.map(grad);
+        cout << "grad = " << gradient;
+        cout << "errors = " << errors;
+        gradient.dot(errors);
+        gradient.multiply(learningRate);
+         
+        cout << "transposition\n";
+        transposed = Matrix(weights[i]);
+        transposed.transpose();
+        cout << "grad = " << gradient;
+        cout << "trans = " << transposed;
+        Matrix deltas = gradient.dot(transposed);
+
+        cout << "adding to actual weights\n";
+        weights[i].add(deltas);
+        biases[i].add(gradient);
+
     }
 
     
