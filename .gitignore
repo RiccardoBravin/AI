@@ -1,2 +1,6 @@
 
 a.exe
+mnist_handwritten_test.json
+mnist_handwritten_train.json
+test_data.txt
+training_data.txt

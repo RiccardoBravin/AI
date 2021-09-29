@@ -4,6 +4,10 @@
 #include <time.h>
 #include <math.h>
 #include <vector>
+#include <fstream>
+
+#include <sstream>
+
 
 using namespace std;
 
@@ -13,58 +17,52 @@ int main(int argc, char const *argv[])
 {
     srand(time(NULL));
 
-    /*Matrix test (2,5);
+
+    /*NeuralNetwork xxor (vector <int> {2,2,1});
+    vector<vector<double>> inputs {{0,1},{1,0},{0,0},{1,1}};
+    vector<vector<double>> outputs {{1},{1},{0},{0}};
+
+    for(int i = 0; i < 20000; i++){
+        int aux = rand()%4;
+        xxor.train(inputs[aux], outputs[aux]);
+    }
+
+    cout << xxor.feedForward(inputs[0]);
+    cout << xxor.feedForward(inputs[1]);
+    cout << xxor.feedForward(inputs[2]);
+    cout << xxor.feedForward(inputs[3]);*/
+
+    fstream training_data ("training_data.txt");
+
+    vector<vector<double>> images (0, vector<double>(784));
+    vector<vector<double>> labels (0, vector<double>(1));
+
+    //while(!training_data.eof()){
+        
+        
+        vector<double> img;
+
+        char str[3];
+        training_data >> str;
+        //training_data >> str;
+        training_data.getline(str, 3, ' ');
+        double x = (double)(atoi(str))/255;
+        
+        img.push_back(x);
+        cout << x;
+
+
+    //}
+
+    cout << img;
     
-    test.initialize(0);
 
-    cout << test;
-    test.add(1);
-    cout << test;
-    test.subtract(2);
-    cout << test;
-    test.multiply(-6);
-    cout << test;
-    test.divide(3);
-    cout << test << endl;
-
-    Matrix test1 (2,5);
-    test1.randomize();
-    cout << test1;
-    test1.multiply(test1);
-    cout << test1 << endl;
-
-
-    test = Matrix(2,3);
-    test1 = Matrix(3,2);
-    test.randomize();
-    test1.randomize();
-    cout << test << endl;
-    cout << test1 << endl;
-    Matrix res = test.dot(test1); 
-    cout << res << endl;
-
-    test1.transpose();
-    cout << test1;
-
-    test1.map(atan);
-    cout << test1;*/
-
-
-    NeuralNetwork test (vector<int> {2,2,1});
-    //cout << "pesi del network inizializzato" << endl << test << endl;
-    
-    vector<double> input {1,0};
-    vector<double> answers {1};
-    
-    //cout << test.feedForwardAll(input)[0] << endl;
-    //cout << test.feedForwardAll(input)[1] << endl;
-    
-    
-    test.train(input, answers);
-    cout << "pesi del network dopo il training"<<test;
 
     return 0;
 }
+
+
+
 
 ostream& operator<<(ostream& str, vector<double> v){
     for(int i = 0; i < v.size(); i++){

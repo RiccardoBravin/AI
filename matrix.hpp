@@ -68,10 +68,11 @@ class Matrix{
             //?????
         }
 
-         UINT get_columns() const {return nCol;}
+        UINT get_columns() const {return nCol;}
         const UINT get_rows() const {return nRow;}
         double get(UINT row, UINT col) const {return matrix[row][col];}
         void set(UINT row, UINT col, double num){matrix[row][col] = num;}
+        UINT size(){return nRow*nCol;};
 
         void initialize(double number);
         void initialize()   {initialize(0);}
@@ -185,7 +186,7 @@ void Matrix::map(double (*f)(double)){
 }
 
 Matrix Matrix::dot(Matrix& m){
-    if(this->get_columns() != m.get_rows()) throw BadSizeException();
+    if(nCol != m.get_rows()) throw BadSizeException();
 
     Matrix res (nRow, m.get_columns(), 0);
 
