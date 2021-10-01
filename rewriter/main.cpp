@@ -6,9 +6,9 @@ using namespace std;
 int main(int argc, char const *argv[])
 {
     
-    ifstream input ("mnist_handwritten_test.json");
+    ifstream input ("mnist_handwritten_train.json");
     //ifstream input ("test.json");
-    ofstream output ("test_data.txt");
+    ofstream output ("training_data.txt");
 
     string aux;
 

@@ -60,7 +60,13 @@ vector<double> NeuralNetwork::feedForward(vector<double>& input){
     Matrix aux (input);
 
     for(int i = 0; i < layers.size()-1; i++){
-        aux = weights[i].dot(aux);
+        try{
+            aux = weights[i].dot(aux);
+        }catch(BadSizeException){
+            cout << "FeedForward couldn't perform the dot product n: " << i;
+            throw BadSizeException();
+        }
+        
         aux.add(biases[i]);
         aux.map(sig_tan);
     }
@@ -79,7 +85,13 @@ vector<Matrix> NeuralNetwork::feedForwardAll(vector<double>& input){
 
     for(int i = 0; i < layers.size()-1; i++){
         values.push_back(aux);
-        aux = weights[i].dot(aux);
+        try{
+            aux = weights[i].dot(aux);
+        }catch(BadSizeException){
+            cout << "FeedForward couldn't perform the dot product n: " << i;
+            throw BadSizeException();
+        }
+        
         aux.add(biases[i]);
         aux.map(sig_tan);
     }
@@ -95,8 +107,6 @@ void  NeuralNetwork::train(vector<double>& inputs, vector<double>& results){
     
     errors.subtract(outputs.back()); //calcola la differenza con i risultati attesi
     
-    
-
     for(int i = weights.size()-1; i >= 0; i--){
 
         //cout << "Calcolo gradiente:\n";
