@@ -1,16 +1,17 @@
-#ifndef MATRIX_LIB
-#define MATRIX_LIB
 
 #include <iostream>
 #include <vector>
 #include <thread>
 #include <mutex>
-
 #include <utility>
+
+#include <chrono>
 
 using namespace std;
 
 #define UINT unsigned int
+
+
 
 class BadSizeException: public exception{
   virtual const char* what() const throw()
@@ -24,7 +25,7 @@ class Matrix{
         UINT nRow;
         UINT nCol;
         vector<vector<double>> matrix;
-        static constexpr int MAXTHREAD = 6; 
+        static constexpr int MAXTHREAD = 4; 
 
      public:
         Matrix(){
@@ -83,19 +84,6 @@ class Matrix{
         void initialize()   {initialize(0);}
         void randomize();
 
-        //scalar
-        void add(double number);
-        void subtract(double number)    {add(-number);}
-        void multiply(double number);
-        void divide(double number)  {multiply(1/number);}
-
-        //elementwise
-        void add(Matrix& m);
-        void subtract(Matrix& m);
-        void multiply(Matrix& m);
-        void divide(Matrix& m);
-        void map(double (*f)(double));
-
         Matrix dot(Matrix& m);
 
         Matrix m_dot(Matrix& m);
@@ -105,8 +93,9 @@ class Matrix{
 
         vector<double> to_vector();
 
-        
+        friend ostream& operator<< (ostream& str, Matrix& matrix);
 };
+
 
 void Matrix::initialize(double number){
     for(UINT i = 0; i < nRow; i++){
@@ -124,74 +113,6 @@ void Matrix::randomize(){
     }
 }
 
-void Matrix::add(double number){
-    for(UINT i = 0; i < nRow; i++){
-        for(UINT j = 0; j < nCol; j++){
-            matrix[i][j] += number;
-        }
-    }
-}
-
-void Matrix::multiply(double number){
-    for(UINT i = 0; i < nRow; i++){
-        for(UINT j = 0; j < nCol; j++){
-            matrix[i][j] *= number;
-        }
-    }
-            
-}
-
-void Matrix::add(Matrix& m){
-    if(m.get_columns() != this->get_columns() || m.get_rows() != this->get_rows()){
-        throw BadSizeException();
-    }
-    for(UINT i = 0; i < nRow; i++){
-        for(UINT j = 0; j < nCol; j++){
-            matrix[i][j] += m.get(i,j);
-        }
-    }
-}
-
-void Matrix::subtract(Matrix& m){
-    if(m.get_columns() != this->get_columns() || m.get_rows() != this->get_rows()){
-        throw BadSizeException();
-    }
-    for(UINT i = 0; i < nRow; i++){
-        for(UINT j = 0; j < nCol; j++){
-            matrix[i][j] -= m.get(i,j);
-        }
-    }
-}
-
-void Matrix::multiply(Matrix& m){
-    if(m.get_columns() != this->get_columns() || m.get_rows() != this->get_rows()){
-        throw BadSizeException();
-    }
-    for(UINT i = 0; i < nRow; i++){
-        for(UINT j = 0; j < nCol; j++){
-            matrix[i][j] *= m.get(i,j);
-        }
-    }       
-}
-
-void Matrix::divide(Matrix& m){
-    if(m.get_columns() != this->get_columns() || m.get_rows() != this->get_rows()){
-        throw BadSizeException();
-    }
-    for(UINT i = 0; i < nRow; i++){
-        for(UINT j = 0; j < nCol; j++){
-            matrix[i][j] /= m.get(i,j);
-        }
-    }
-}
-
-void Matrix::map(double (*f)(double)){
-    for(UINT i = 0; i < nRow; i++){
-        for(UINT j = 0; j < nCol; j++){
-            matrix[i][j] = (*f)(matrix[i][j]);
-        }
-    }
-}
 
 Matrix Matrix::dot(Matrix& m){
     if(nCol != m.get_rows()) throw BadSizeException();
@@ -241,6 +162,8 @@ void Matrix::r_c_dot(Matrix& m, int& row, int& col, Matrix& res, mutex& mtx){
     while(true){
 
         mtx.lock();
+        
+
         if(col >= m.get_columns()){
             i = ++row;
             col = 0;
@@ -249,6 +172,7 @@ void Matrix::r_c_dot(Matrix& m, int& row, int& col, Matrix& res, mutex& mtx){
         i = row;
         j = col;
         col++;
+        
         if(row >= nRow){
             mtx.unlock();
             break;
@@ -256,6 +180,7 @@ void Matrix::r_c_dot(Matrix& m, int& row, int& col, Matrix& res, mutex& mtx){
 
         mtx.unlock();
 
+        
         double sum = 0;
 
         for (int k = 0; k < nCol; k++)
@@ -269,32 +194,6 @@ void Matrix::r_c_dot(Matrix& m, int& row, int& col, Matrix& res, mutex& mtx){
     
 }
 
-void Matrix::transpose(){
-    
-    vector<vector<double>> aux = vector<vector<double>>(nCol, vector<double>(nRow));
-    for(UINT i = 0; i < nRow; i++){
-        for(UINT j = 0; j < nCol; j++){
-            aux[j][i] = matrix[i][j];
-        }
-    }
-    matrix = aux;
-    nCol = nRow;
-    nRow = aux.size();
-    
-}
-
-
-vector<double> Matrix::to_vector(){
-    vector<double> vec;
-    for(UINT i = 0; i < nRow; i++){
-        for(UINT j = 0; j < nCol; j++){
-            vec.push_back(matrix[i][j]);
-        }
-    }
-    return vec;
-}
-
-
 ostream& operator<< (ostream& str, Matrix& matrix){
     for(UINT i = 0; i < matrix.get_rows(); i++){
         for(UINT j = 0; j < matrix.get_columns(); j++){
@@ -305,4 +204,20 @@ ostream& operator<< (ostream& str, Matrix& matrix){
     return str;
 }
 
-#endif
+
+int main(){
+
+
+    
+    Matrix test (2,2,1);
+    Matrix test1 (2,2,2);
+
+    Matrix res = test.m_dot(test1);
+
+    cout << res;
+    
+
+
+
+
+}

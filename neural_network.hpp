@@ -47,6 +47,7 @@ class NeuralNetwork{
         vector<Matrix> feedForwardAll(vector<double>& input);
         
         void train(vector<double>& inputs, vector<double>& results);
+        void batch_train(vector<vector<double>>& inputs, vector<vector<double>>& results, int batch_size);
        
 
 
@@ -101,6 +102,8 @@ vector<Matrix> NeuralNetwork::feedForwardAll(vector<double>& input){
 }
 
 void  NeuralNetwork::train(vector<double>& inputs, vector<double>& results){
+
+    
     
     vector<Matrix> outputs = feedForwardAll(inputs);
     Matrix errors(results); //prepara i risultati in forma matriciale
@@ -122,7 +125,7 @@ void  NeuralNetwork::train(vector<double>& inputs, vector<double>& results){
         transposed.transpose();
         //cout << "grad = " << gradient;
         //cout << "trans = " << transposed;
-        Matrix deltas = gradient.dot(transposed);
+        Matrix deltas = gradient.m_dot(transposed);
         //cout << "delta = " << deltas;
 
         //cout << "adding to actual weights\n";
@@ -134,15 +137,68 @@ void  NeuralNetwork::train(vector<double>& inputs, vector<double>& results){
         //cout << "calcolo errori per passaggio successivo: " << endl;
         transposed = Matrix(weights[i]);
         transposed.transpose();
-        errors = transposed.dot(errors);
+        errors = transposed.m_dot(errors);
         //cout << errors << endl;
         
 
         //cout << "\n\n";
 
     }
-
     
+}
+
+void NeuralNetwork::batch_train(vector<vector<double>> &inputs, vector<vector<double>>& results, int batch_size){
+    
+    vector<Matrix> average_d;
+    vector<Matrix> average_g;
+    for(int i = 0; i < weights.size(); i++){
+        average_d.push_back(Matrix(weights[i].get_rows(), weights[i].get_columns(), 0));
+        average_g.push_back(Matrix(weights[i].get_rows(), 1, 0));
+    }
+    
+    for (int n = 0; n < batch_size; n++){
+        vector<Matrix> outputs = feedForwardAll(inputs[n]);
+        Matrix errors(results[n]); //prepara i risultati in forma matriciale
+    
+        errors.subtract(outputs.back()); //calcola la differenza con i risultati attesi
+        
+        for(int i = weights.size()-1; i >= 0; i--){
+
+            //cout << "Calcolo gradiente:\n";
+            Matrix gradient = outputs[i+1];
+            gradient.map(grad);
+            //cout << "output_val = " << gradient;
+            gradient.multiply(errors);
+            gradient.multiply(learningRate);
+
+            //cout << "Calcolo delta\n";
+            Matrix transposed = Matrix(outputs[i]);
+            transposed.transpose();
+            //cout << "grad = " << gradient;
+            //cout << "trans = " << transposed;
+            Matrix deltas = gradient.m_dot(transposed);
+            //cout << "delta = " << deltas;
+        
+            average_d[i].add(deltas);
+            average_g[i].add(gradient);
+            
+            
+            //cout << "calcolo errori per passaggio successivo: " << endl;
+            transposed = Matrix(weights[i]);
+            transposed.transpose();
+            errors = transposed.m_dot(errors);
+            //cout << errors << endl;
+            
+
+        }
+    }
+
+    for(int i = weights.size()-1; i >= 0; i--){
+        //cout << "adding to actual weights\n";
+        weights[i].add(average_d[i]);
+        //cout << "adding to actual bias\n";
+        biases[i].add(average_g[i]);
+    }
     
 }
 

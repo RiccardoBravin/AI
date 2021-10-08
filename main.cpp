@@ -6,7 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
-
+#include <chrono>
 
 
 using namespace std;
@@ -35,10 +35,12 @@ int main(int argc, char const *argv[])
     cout << xxor.feedForward(inputs[3]);*/
 
     
+
+    /*
     ifstream training_data ("training_data.txt");
 
-    vector<vector<double>> images (4000, vector<double>());
-    vector<vector<double>> labels (4000, vector<double>());
+    vector<vector<double>> images (1000, vector<double>());
+    vector<vector<double>> labels (1000, vector<double>());
 
 
     cout << "Memorizzazione dei dati";
@@ -73,8 +75,6 @@ int main(int argc, char const *argv[])
                 labels[i].push_back(0);
             }
         }
-        
-        
 
         i++;
         
@@ -86,21 +86,19 @@ int main(int argc, char const *argv[])
     //cout << labels[0].size();
     
 
-    NeuralNetwork doodle (vector <int> {784, 512, 512, 10});
+    NeuralNetwork doodle (vector <int> {784, 512, 10});
 
     
     double err = 1;
     int x = 1;
-    while(err > 0.1){
-        for(int i = 0; i < images.size(); i++){
-            doodle.train(images[i], labels[i]);
-            int perc = i*100/images.size();
-            cout << perc << "%";
-            if(perc < 10){
-                cout << "\b\b";
-            }else{
-                cout << "\b\b\b";
-            }
+    constexpr int BS = 20;//batch size
+    while(err > 0.01){
+        for(int i = 0; i < images.size()/BS; i++){
+            vector<vector<double>> batch_i(&images[i*BS], &images[i*BS+BS]);
+            vector<vector<double>> batch_l(&labels[i*BS], &labels[i*BS+BS]);
+            doodle.batch_train(batch_i, batch_l, 10);
+        
+            cout << "*";
 
         }
 
@@ -166,9 +164,32 @@ int main(int argc, char const *argv[])
 
     cout << to_percent(doodle.feedForward(test_img)) << endl;
     cout << test_lbl << endl;
-
+    */
 
     
+
+    Matrix test (1200,1200,1.31235512);
+    Matrix test1 (1200,1200,0.123134412);
+
+    auto t1 = chrono::high_resolution_clock::now();
+    Matrix res = test.m_dot(test1);
+    auto t2 = chrono::high_resolution_clock::now();
+
+    chrono::duration<double, std::milli> ms_double = t2 - t1;
+
+    cout << "multithread " << ms_double.count() << "ms\n";
+
+
+    t1 = chrono::high_resolution_clock::now();
+    res = test.dot(test1);
+    t2 = chrono::high_resolution_clock::now();
+
+    ms_double = t2 - t1;
+    cout << "singlethread " << ms_double.count() << "ms\n";
+
+    //cout << res;
+
+
     return 0;
 }
 
