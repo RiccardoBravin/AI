@@ -22,7 +22,8 @@ double sig_tan(double x){
 }
 
 double grad(double x){
-    return x * (1 - x);
+    //return x * (1 - x); //derivative for logistic
+    return 1-pow(x,2);
 }
 
 class NeuralNetwork{
@@ -30,7 +31,7 @@ class NeuralNetwork{
         vector<int> layers;
         vector<Matrix> weights;
         vector<Matrix> biases;
-        double learningRate {0.1}; //valore da cambiare in base alla velocità di allenamento
+        double learningRate {0.01}; //valore da cambiare in base alla velocità di allenamento
 
     public:
         NeuralNetwork(vector<int> _layers){
@@ -43,12 +44,31 @@ class NeuralNetwork{
             }
         }
 
+        NeuralNetwork(vector<int> _layers, vector<Matrix> _weights, vector<Matrix> _biases){
+            layers = _layers;
+            weights = _weights;
+            biases = _biases;
+        }
+
+        NeuralNetwork(vector<vector<double>> all_weights){
+            cout << "non ancora implementata";
+        }
+
         vector<double> feedForward(vector<double>& input); //returns a vector
         vector<Matrix> feedForwardAll(vector<double>& input);
         
         void train(vector<double>& inputs, vector<double>& results);
         void batch_train(vector<vector<double>>& inputs, vector<vector<double>>& results, int batch_size);
-       
+        
+        vector<int> get_size(){return layers;}
+        Matrix get_weight(int i){
+            if(i > weights.size()) throw InvalidArgumentException();
+            return weights[i];
+        }
+        Matrix get_bias(int i){
+            if(i > biases.size()) throw InvalidArgumentException();
+            return biases[i];
+        }
 
 
     friend ostream& operator<<(ostream& str, NeuralNetwork& nn);

@@ -19,6 +19,7 @@ class BadSizeException: public exception{
   }
 };
 
+
 class Matrix{
      private:
         UINT nRow;
@@ -104,6 +105,9 @@ class Matrix{
         void transpose();
 
         vector<double> to_vector();
+
+
+        friend ostream& operator<<(ostream& str, Matrix& matrix);
 
         
 };
@@ -295,7 +299,7 @@ vector<double> Matrix::to_vector(){
 }
 
 
-ostream& operator<< (ostream& str, Matrix& matrix){
+ostream& operator<<(ostream& str, Matrix& matrix){
     for(UINT i = 0; i < matrix.get_rows(); i++){
         for(UINT j = 0; j < matrix.get_columns(); j++){
             str << matrix.get(i,j) << " ";

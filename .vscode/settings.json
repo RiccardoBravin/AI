@@ -4,6 +4,8 @@
         "*.tcc": "cpp",
         "ostream": "cpp",
         "atomic": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "chrono": "cpp",
+        "algorithm": "cpp"
     }
 }
