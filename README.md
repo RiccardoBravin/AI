@@ -1,4 +1,4 @@
 # Neural Network custom made
- I wrote a custom general AI with built in matrix library and neural network
+ General purpose Feed Forward Neural Network built from scratch comprising a custom matrix library with thread handling
 
 
